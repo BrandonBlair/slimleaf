@@ -21,7 +21,7 @@ class WebPage(Page):
 
     path = '/example'
 
-    def __init__(self, base_url, *args, **kwargs):
+    def __init__(self, base_url=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_url = base_url
 
