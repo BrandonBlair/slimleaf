@@ -99,7 +99,7 @@ class CheckboxElement(InputElement):
 
 
 class RadioField(object):
-    """Radio field for LTK pages"""
+    """Radio fields consist of multiple input elements"""
 
     def __init__(self):
         self.inputs = []
@@ -182,45 +182,6 @@ class ModalElement(BaseElement):
 
     def close_button(self):
         raise NotImplementedError()
-
-
-class MenuElement(BaseElement):
-    """ Class that lets the user manipulate a dropdown menu"""
-
-    @property
-    def options(self):
-        pass  # pragma: no cover
-
-    def hover(self, return_options=True):
-        """Moves to element to activate the dropdown and can return dropdown options"""
-        actions = ActionChains(self.driver)
-        actions.move_to_element(self.web_element)
-        actions.click(self.web_element)
-        actions.perform()
-
-        if return_options:
-            return self.options
-
-
-class HeaderElement(BaseElement):
-    """ Methods to scrape or manipulate the header for LTK """
-
-    @property
-    def color(self):
-        """ Gets color of the header """
-
-        return self.web_element.value_of_css_property("color")
-
-    @property
-    def transparency(self):
-        """ Gets transparency of the header """
-
-        # Captures Alpha value, e.g. rgba(255, 255, 255, 90.5)
-        trans_ptrn = re.compile('rgba\(\d+, \d+, \d+, (?P<trans>\d+\.?(\d{1,2})?)')
-        trans_val = trans_ptrn.match(
-            self.web_element.value_of_css_property('background')
-        ).group('trans')
-        return trans_val
 
 
 class AnchorElement(BaseElement):

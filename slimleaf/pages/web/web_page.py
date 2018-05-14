@@ -77,7 +77,11 @@ class WebPage(Page):
         return None
 
     def refresh(self, timeout=30):
-        """Refreshes a page and waits for an ltk_item to go stale to avoid proceeding prematurely"""
+        """Refreshes the current page in the browser
+
+        Waiting for the html element to go stale ensures the refresh is complete and avoids
+        proceeding too early.
+        """
 
         locator = (By.CSS_SELECTOR, 'html')
         html_elem = WebDriverWait(self.driver, timeout).until(presence_of_element_located(locator))
