@@ -119,3 +119,8 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+# Local
+.history/
+.pytest_cache/
+.coverage
+

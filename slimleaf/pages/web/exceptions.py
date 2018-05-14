@@ -1,0 +1,2 @@
+class ModalNotOpenException(Exception):
+    pass
