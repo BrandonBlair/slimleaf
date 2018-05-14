@@ -14,8 +14,6 @@ from slimleaf.utils import (
 
 # Test variables
 dt = datetime.now()
-success_status = 200
-fail_status = 500
 
 
 def test_mysql_dt():
