@@ -92,11 +92,9 @@ class WebPage(Page):
         return None
 
     def close(self):
-        """Closes the current window handle and switches to the last opened handle"""
+        """Closes the current window handle"""
 
         self.driver.close()
-        last_opened_window = self.driver.window_handles[-1]
-        self.driver.switch_to.window(last_opened_window)
         return None
 
     # Scrolling
