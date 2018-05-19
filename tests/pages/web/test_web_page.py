@@ -29,10 +29,6 @@ def test_can_use_base_inherited_class(_mock_wait_page, _mock_wait_web, mock_text
     _mock_wait_page.return_value.until.return_value = MagicMock()
     test_page = MockPage(TEST_URL, mock_driver).go()
 
-    # Validate title
-    mock_driver.title = mock_text
-    assert test_page.title == mock_text
-
     # Validate Page arrival logic
     _mock_wait_page.return_value.until.side_effect = PageMismatchException(
         'Expected to find element in Page'
@@ -45,6 +41,10 @@ def test_can_use_base_inherited_class(_mock_wait_page, _mock_wait_web, mock_text
     _mock_wait_page.return_value.until.side_effect = TimeoutException
     with raises(PageMismatchException) as mismatch_exc:  # Validates expected exception
         test_page = MockPage(TEST_URL, mock_driver).go()
+
+    # Validate title
+    mock_driver.title = mock_text
+    assert test_page.title == mock_text
 
     # Validate URL
     assert test_page.url == f'{TEST_URL}{TEST_PATH}'

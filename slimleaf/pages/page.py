@@ -73,7 +73,7 @@ class Page(object):
         """Retrieve an lxml tree object for a specific element
 
         Args:
-            element (slimleaf.pages.mobile.elements.BaseElement): Element from which tree is built
+            element (slimleaf.pages.element.Element): Element from which tree is built
 
         Returns:
             tree (lxml.etree.Element) lxml tree with a root matching that of the element

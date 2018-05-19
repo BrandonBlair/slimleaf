@@ -12,3 +12,11 @@ class NotASelectElementException(ValueError):
 
 class NotAValidSelectOption(ValueError):
     pass
+
+
+class UnexpectedTagNameException(ValueError):
+    pass
+
+
+class NoSuchElementException(ValueError):
+    pass
