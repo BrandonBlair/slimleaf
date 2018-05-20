@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='slimleaf',
-    version="1.0.6",
+    version="1.0.8",
     author="Brandon Blair",
     author_email="cbrandon.blair@gmail.com",
     url="https://github.com/brandonblair/slimleaf",

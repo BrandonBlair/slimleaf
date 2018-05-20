@@ -19,7 +19,7 @@ class WebPage(Page):
         url (str): Absolute url comprised of scheme, domains, and path to resource
     """
 
-    path = '/example'
+    path = ''
 
     def __init__(self, base_url=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
