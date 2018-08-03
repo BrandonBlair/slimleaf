@@ -25,8 +25,9 @@ class Page(object):
         driver
     """
 
-    def __init__(self, driver):
+    def __init__(self, driver, **kwargs):
         self.driver = driver
+        self.timeout = kwargs.get('timeout', 30)
 
     @property
     def unique_locator(self):
@@ -49,7 +50,7 @@ class Page(object):
         """
 
         try:
-            WebDriverWait(self.driver, 30).until(
+            WebDriverWait(self.driver, self.timeout).until(
                 presence_of_element_located(self.unique_locator)
             )
             return True
