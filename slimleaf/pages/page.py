@@ -25,9 +25,8 @@ class Page(object):
         driver
     """
 
-    def __init__(self, driver, **kwargs):
+    def __init__(self, driver):
         self.driver = driver
-        self.timeout = kwargs.get('timeout', 30)
 
     @property
     def unique_locator(self):
@@ -50,7 +49,7 @@ class Page(object):
         """
 
         try:
-            WebDriverWait(self.driver, self.timeout).until(
+            WebDriverWait(self.driver, 30).until(
                 presence_of_element_located(self.unique_locator)
             )
             return True
@@ -74,7 +73,7 @@ class Page(object):
         """Retrieve an lxml tree object for a specific element
 
         Args:
-            element (slimleaf.pages.element.Element): Element from which tree is built
+            element (slimleaf.pages.mobile.elements.Element): Element from which tree is built
 
         Returns:
             tree (lxml.etree.Element) lxml tree with a root matching that of the element

@@ -1,43 +1,51 @@
-from selenium.webdriver.support.wait import WebDriverWait
+import re
+from selenium.webdriver import ActionChains
+from selenium.webdriver.support.select import Select
+from selenium.common.exceptions import UnexpectedTagNameException, NoSuchElementException
 from selenium.webdriver.support.expected_conditions import (
     element_to_be_clickable, presence_of_element_located)
-from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.wait import WebDriverWait
 
-from appium.webdriver.common.touch_action import TouchAction
-
-from slimleaf.webdriver.exceptions import (
-    NotASelectElementException, NotAValidSelectOption, UnexpectedTagNameException,
-    NoSuchElementException
-)
+from slimleaf.exceptions import SlimleafException
 
 
 class Element(object):
-    """Base Element including useful functionality for manipulating elements
+    """Base Element including useful functionality for manipulating web elements
 
     Elements requiring additional/modified functionality should subclass this class. If a locator is
-    static for a particular element, provide the _locator as a class attribute and the MobileElement
+    static for a particular element, provide the locator as a class attribute and the Element
     can initialized without passing the locator argument.
 
     Args:
-        driver (selenium.webdriver): Webdriver that will interface with the app
+        driver (selenium.webdriver): Webdriver that will interface with the web
         locator (slimleaf.webdriver.locator.Locator): Locator used to find element
-        web_element (selenium.webdriver.remote.webelement.WebElement): selenium web_element object
+        etree_locator (slimleaf.webdriver.locator.Locator); Locator used to find lxml element trees
+        timeout (int): Duration (seconds) to wait for an element before a TimeoutException is raised
+        web_element (selenium.webdriver.remote.webelement.WebElement): selenium-level web_element
     """
 
     _locator = None
+    _etree_locator = None
 
-    def __init__(self, driver, locator=None, timeout=30, web_element=None, etree_locator=None):
+    def __init__(self, driver, locator=None, etree_locator=None, timeout=30, web_element=None):
         self.driver = driver
         self.locator = locator or self._locator
         self.timeout = timeout
         self.web_element = self.find()
-        self.etree_locator = etree_locator
+        self.etree_locator = etree_locator or self._etree_locator
 
     def find(self):
         elem = WebDriverWait(self.driver, self.timeout).until(
             presence_of_element_located(self.locator)
         )
         return elem
+
+    def click(self):
+        elem = WebDriverWait(self.driver, self.timeout).until(
+            element_to_be_clickable(self.locator)
+        )
+        elem.click()
+        return None
 
     @property
     def text(self):
@@ -54,7 +62,7 @@ class Element(object):
         return self.web_element.is_displayed()
 
     def scroll_into_view(self, offset=None):
-        """Scrolls element into view (Web only)
+        """Scrolls element into view.
 
         If an offset is desired, passing an integer (pixels) will scroll the Y axis accordingly.
         """
@@ -62,34 +70,6 @@ class Element(object):
         self.driver.execute_script("arguments[0].scrollIntoView(true);", self.web_element)
         if offset:
             self.driver.execute_script("window.scrollBy(0, {0});".format(offset))
-
-    def click(self):
-        elem = WebDriverWait(self.driver, self.timeout).until(
-            element_to_be_clickable(self.locator)
-        )
-        elem.click()
-        return None
-
-    # Mobile actions
-    def tap(self, x=5, y=5):
-        touchable_elem = WebDriverWait(self.driver, self.timeout).until(
-            element_to_be_clickable(self.locator)
-        )
-        touch_action = TouchAction(driver=self.driver)
-        touch_action.tap(element=touchable_elem, x=x, y=y).perform()
-
-    def swipe_left(self, x=5, y=5):
-        self._swipe(-200, x, y)
-
-    def swipe_right(self, x=5, y=5):
-        self._swipe(200, x, y)
-
-    def _swipe(self, pixels, x, y):
-        elem = WebDriverWait(self.driver, self.timeout).until(
-            element_to_be_clickable(self.locator)
-        )
-        touch_action = TouchAction(driver=self.driver)
-        touch_action.press(elem, x, y).move_to(elem, x + pixels, y).release().perform()
 
 
 class InputElement(Element):
@@ -102,11 +82,19 @@ class InputElement(Element):
         txt = self.web_element.get_attribute('value')
         return txt
 
+
+    def clear(self):
+        """Clears the content of currently active input field"""
+
+        self.web_element.clear()
+        return None
+
+
     @text.setter
     def text(self, txt):
         """Sets the text for this input element as if a user had typed into it."""
 
-        self.web_element.clear()
+        self.clear()
         self.web_element.send_keys(txt)
         return None
 
@@ -119,7 +107,7 @@ class CheckboxElement(InputElement):
 
 
 class RadioField(object):
-    """Radio fields consist of multiple input elements"""
+    """Radio field for webpages"""
 
     def __init__(self):
         self.inputs = []
@@ -143,13 +131,25 @@ class RadioInputElement(InputElement):
         return self.web_element.is_selected()
 
 
+class NotAValidSelectOption(SlimleafException):
+    pass
+
+
+class NoSuchElementException(SlimleafException):
+    pass
+
+
+class NotASelectElementException(SlimleafException):
+    pass
+
+
 class SelectElement(Element):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         try:
             self.select_elem = Select(self.web_element)
         except UnexpectedTagNameException as e:
-            raise NotASelectElementException from e
+            raise NotASelectElementException(self.web_element.tag_name) from e
 
     @property
     def text(self):
@@ -162,9 +162,7 @@ class SelectElement(Element):
         try:
             self.select_elem.select_by_visible_text(txt)
         except NoSuchElementException as e:
-            raise NotAValidSelectOption(
-                f'Option {txt} is not present in existing options: {self.options}'
-            ) from e
+            raise NotAValidSelectOption(txt) from e
 
     @property
     def options(self):
@@ -202,6 +200,24 @@ class ModalElement(Element):
 
     def close_button(self):
         raise NotImplementedError()
+
+
+class MenuElement(Element):
+    """ Class that lets the user manipulate a dropdown menu"""
+
+    @property
+    def options(self):
+        pass  # pragma: no cover
+
+    def hover(self, return_options=True):
+        """Moves to element to activate the dropdown and can return dropdown options"""
+        actions = ActionChains(self.driver)
+        actions.move_to_element(self.web_element)
+        actions.click(self.web_element)
+        actions.perform()
+
+        if return_options:
+            return self.options
 
 
 class AnchorElement(Element):

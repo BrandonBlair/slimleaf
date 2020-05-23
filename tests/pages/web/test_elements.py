@@ -3,14 +3,14 @@ from unittest.mock import patch, MagicMock
 from selenium.webdriver.common.by import By
 from pytest import raises
 
-from slimleaf.pages import element as elems
+from slimleaf.pages.web import elements as elems
 from slimleaf.webdriver.locator import Locator
 
 
 TEST_LOCTR = Locator(by=By.CSS_SELECTOR, value="unimportant")
 
 
-@patch('slimleaf.pages.element.WebDriverWait')
+@patch('slimleaf.pages.web.elements.WebDriverWait')
 def test_elements(_mock_wait, mock_driver):
     base_element = elems.Element(driver=mock_driver, locator=TEST_LOCTR, timeout=5)
 
@@ -22,7 +22,7 @@ def test_elements(_mock_wait, mock_driver):
     base_element.scroll_into_view(offset=200)
 
 
-@patch('slimleaf.pages.element.WebDriverWait')
+@patch('slimleaf.pages.web.elements.WebDriverWait')
 def test_input_element(_mock_wait, mock_text, mock_driver):
     mock_elem = MagicMock()
     mock_elem.get_attribute.return_value = mock_text
@@ -35,7 +35,7 @@ def test_input_element(_mock_wait, mock_text, mock_driver):
     input_element.web_element.clear.assert_called_once()
 
 
-@patch('slimleaf.pages.element.WebDriverWait')
+@patch('slimleaf.pages.web.elements.WebDriverWait')
 def test_checkbox_element(_mock_wait, mock_driver):
     mock_elem = MagicMock()
     _mock_wait.return_value = mock_elem
@@ -45,7 +45,7 @@ def test_checkbox_element(_mock_wait, mock_driver):
     checkbox_element.web_element.get_attribute.assert_called_once()
 
 
-@patch('slimleaf.pages.element.WebDriverWait')
+@patch('slimleaf.pages.web.elements.WebDriverWait')
 def test_radio_input_element(_mock_wait, mock_driver):
     mock_elem = MagicMock()
     _mock_wait.return_value = mock_elem
@@ -55,7 +55,7 @@ def test_radio_input_element(_mock_wait, mock_driver):
     radio_element.web_element.is_selected.assert_called_once()
 
 
-@patch('slimleaf.pages.element.WebDriverWait')
+@patch('slimleaf.pages.web.elements.WebDriverWait')
 def test_radio_field_element(_mock_wait, mock_driver):
     mock_elem = MagicMock()
     mock_elem.selected = True
@@ -66,8 +66,8 @@ def test_radio_field_element(_mock_wait, mock_driver):
     assert radio_field_elem.selected == mock_elem
 
 
-@patch('slimleaf.pages.element.Select')
-@patch('slimleaf.pages.element.WebDriverWait')
+@patch('slimleaf.pages.web.elements.Select')
+@patch('slimleaf.pages.web.elements.WebDriverWait')
 def test_select_element(_mock_wait, _mock_select, mock_text, mock_driver):
     mock_elem = MagicMock()
     _mock_wait.return_value = mock_elem
@@ -88,7 +88,7 @@ def test_select_element(_mock_wait, _mock_select, mock_text, mock_driver):
     assert select_element.options == [mock_text]
 
 
-@patch('slimleaf.pages.element.WebDriverWait')
+@patch('slimleaf.pages.web.elements.WebDriverWait')
 def test_unchanged_element_classes(_mock_wait, mock_driver):
     mock_elem = MagicMock()
     _mock_wait.return_value = mock_elem
@@ -103,7 +103,7 @@ def test_unchanged_element_classes(_mock_wait, mock_driver):
         assert False
 
 
-@patch('slimleaf.pages.element.WebDriverWait')
+@patch('slimleaf.pages.web.elements.WebDriverWait')
 def test_modal_element(_mock_wait, mock_driver):
 
     mock_elem = MagicMock()

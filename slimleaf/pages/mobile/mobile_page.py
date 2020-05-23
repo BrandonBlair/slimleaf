@@ -1,13 +1,16 @@
 from appium.common.exceptions import NoSuchContextException
+
 from selenium.common.exceptions import WebDriverException
 
-from slimleaf.webdriver.custom_waits import wait_through_exception_then_return
 from slimleaf.exceptions import SlimleafException
-from slimleaf.webdriver.exceptions import PageMismatchException
 from slimleaf.pages.page import Page
 
 WEBVIEW_CONTEXT = 'WEBVIEW'
 NATIVE_CONTEXT = 'NATIVE_APP'
+
+
+class PageMismatchException(SlimleafException):
+    pass
 
 
 class MobilePage(Page):
@@ -27,9 +30,7 @@ class MobilePage(Page):
             self.switch_to_required_context()
 
         if not self.is_current_page:
-            raise PageMismatchException(
-                f"Expected to find element matching {self.unique_locator}, but didn't."
-            )
+            raise PageMismatchException(f"{self.unique_locator} not found")
 
     @property
     def required_context(self):
@@ -72,3 +73,21 @@ class MobilePage(Page):
                 f'Context {self.context} does not match available contexts {available_contexts}'
             )
         return None
+
+    def scroll_down(self):
+        self._scroll("down")
+
+    def scroll_up(self):
+        self._scroll("up")
+
+    def _scroll(self, direction):
+        """Scroll screen in a direction
+
+        Args:
+            direction (str): e.g. "down"
+        """
+
+        if direction not in ['up', 'down']:
+            raise SlimleafException("Supported scroll directions are 'up' and 'down'")
+
+        self.driver.execute_script("mobile: scroll", {"direction": direction})

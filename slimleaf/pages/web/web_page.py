@@ -3,8 +3,12 @@ from selenium.webdriver.support.expected_conditions import (
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 
-from slimleaf.webdriver.exceptions import PageMismatchException
 from slimleaf.pages.page import Page
+from slimleaf.exceptions import SlimleafException
+
+
+class PageMismatchException(SlimleafException):
+    pass
 
 
 class WebPage(Page):
@@ -19,9 +23,9 @@ class WebPage(Page):
         url (str): Absolute url comprised of scheme, domains, and path to resource
     """
 
-    path = ''
+    path = '/example'
 
-    def __init__(self, base_url=None, *args, **kwargs):
+    def __init__(self, base_url, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_url = base_url
 
@@ -77,11 +81,7 @@ class WebPage(Page):
         return None
 
     def refresh(self, timeout=30):
-        """Refreshes the current page in the browser
-
-        Waiting for the html element to go stale ensures the refresh is complete and avoids
-        proceeding too early.
-        """
+        """Refreshes a page and waits for the HTML element to go stale to avoid proceeding prematurely"""
 
         locator = (By.CSS_SELECTOR, 'html')
         html_elem = WebDriverWait(self.driver, timeout).until(presence_of_element_located(locator))
@@ -92,9 +92,11 @@ class WebPage(Page):
         return None
 
     def close(self):
-        """Closes the current window handle"""
+        """Closes the current window handle and switches to the last opened handle"""
 
         self.driver.close()
+        last_opened_window = self.driver.window_handles[-1]
+        self.driver.switch_to.window(last_opened_window)
         return None
 
     # Scrolling

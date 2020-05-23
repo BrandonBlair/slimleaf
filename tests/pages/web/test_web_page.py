@@ -5,7 +5,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 
 from slimleaf.pages import WebPage
-from slimleaf.webdriver.exceptions import PageMismatchException
+from slimleaf.pages.web.web_page import PageMismatchException
 from slimleaf.webdriver.locator import Locator
 
 TEST_URL = 'http://testurl.maga.rip'
